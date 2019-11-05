@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using FinchAPI;
 using System.IO;
+using System.Globalization;
 
 namespace Project_FinchControl
 {
@@ -1400,8 +1401,11 @@ namespace Project_FinchControl
 
         static void DisplayAddTheme()
         {
+            string path = @"Data\Theme.txt";
             string backgroundColor;
             string foregroundColor;
+
+            DisplayScreenHeader("Add a Theme");
 
             Console.WriteLine("Background Color: ");
             backgroundColor = Console.ReadLine().Trim();
@@ -1409,8 +1413,16 @@ namespace Project_FinchControl
             Console.WriteLine("Text Color: ");
             foregroundColor = Console.ReadLine().Trim();
 
-            File.AppendAllText("Data\\Theme.txt", $"{backgroundColor}|{foregroundColor}");
+            // **************************************
+            // Taken from c# microsoft documentation
+            // Creates a TextInfo based on the "en-US" culture.
+            TextInfo myTI = new CultureInfo("en-US", false).TextInfo;
+
+            string themeText = $"\n{myTI.ToTitleCase(backgroundColor)}|{myTI.ToTitleCase(foregroundColor)}";
+            File.AppendAllText(path, themeText);
             Console.WriteLine("Theme Successfully Added");
+
+            DisplayContinuePrompt("continue");
         }
 
         static void DisplayChooseThemeCycle()
@@ -1421,7 +1433,7 @@ namespace Project_FinchControl
             string[] themes = File.ReadAllLines("Data\\Theme.txt");
 
             bool keepLooping = true;
-            bool validResponse;
+            bool validResponse = false;
             string userResponse;
 
             while (keepLooping)
@@ -1450,21 +1462,31 @@ namespace Project_FinchControl
                     Console.WriteLine("\n1. Yes" +
                                       "\n2. No");
 
-                    userResponse = Console.ReadLine();
+                    do
+                    {
+                        Console.Write("?: ");
+                        userResponse = Console.ReadLine();
 
-                    if (userResponse == "1")
-                    {
-                        keepLooping = false;
-                        break;
-                    }
-                    else if (userResponse == "2")
-                    {
-                        keepLooping = true;
-                    }
-                    else
-                    {
-                        DisplayErrorMessage("Please enter the number next to your choice (1, 2)");
-                    }
+                        if (userResponse == "1")
+                        {
+                            keepLooping = false;
+                            validResponse = true;
+                            break;
+                        }
+                        else if (userResponse == "2")
+                        {
+                            keepLooping = true;
+                            validResponse = true;
+                        }
+                        else
+                        {
+                            DisplayErrorMessage("Please enter the number next to your choice (1, 2)");
+                            keepLooping = true;
+                        }
+                    } while (!validResponse && keepLooping);
+
+
+
                 }
             }
         }
