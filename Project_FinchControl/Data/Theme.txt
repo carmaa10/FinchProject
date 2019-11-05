@@ -1,0 +1,4 @@
+﻿Cyan|Black
+Red|Black
+Blue|White
+White|Black

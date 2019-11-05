@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using FinchAPI;
+using System.IO;
 
 namespace Project_FinchControl
 {
@@ -14,12 +15,12 @@ namespace Project_FinchControl
     //
     // Author:           Carma Aten
     // Dated Created:    10/1/2019
-    // Last Modified:    10/23/2019
+    // Last Modified:    10/29/2019
     //
     // **************************************************
 
-    // --------------------------------------------------
-    //                      IDEAS
+    // **************************************************
+    // IDEAS
     // * Happy/sad tones
     // --------------------------------------------------
 
@@ -50,6 +51,7 @@ namespace Project_FinchControl
         static void Main(string[] args)
         {
             DisplayWelcomeScreen();
+            //DisplayLoginRegisterOption();
             DisplayMainMenu();
             DisplayClosingScreen();
         }
@@ -81,7 +83,8 @@ namespace Project_FinchControl
                     "\n4. Alarm System" +
                     "\n5. User Programming" +
                     "\n6. Disconnect Finch" +
-                    "\n7. Exit");
+                    "\n7. Change Theme" +
+                    "\n8. Exit");
                 menuChoice = Console.ReadLine().Trim();
 
                 // --------------------
@@ -142,6 +145,10 @@ namespace Project_FinchControl
                         break;
 
                     case "7":
+                        DisplayChooseTheme();
+                        break;
+                         
+                    case "8":
                         if (finchRobotConnected == false)
                         {
                             quitApplication = true;
@@ -152,6 +159,11 @@ namespace Project_FinchControl
                         }
                         break;
 
+                    case "q":
+                        stingRay.disConnect();
+                        quitApplication = true;
+                        break;
+
                     default:
                         DisplayErrorMessage(faultyInput);
                         break;
@@ -160,6 +172,11 @@ namespace Project_FinchControl
         }
 
         #region TALENT SHOW
+        // ************************
+        // IDEAS
+        //
+        // ------------------------
+
         static void DisplayTalentShow(Finch finchRobot)
         {
             string menuChoice;
@@ -460,6 +477,11 @@ namespace Project_FinchControl
         #endregion // TALENT SHOW
 
         #region DATA RECORDER
+        // ************************
+        // IDEAS
+        //
+        // ------------------------
+
         static void DisplayDataRecorder(Finch finchRobot)
         {
             double dataPointFrequency;
@@ -624,6 +646,11 @@ namespace Project_FinchControl
         #endregion // DATA RECORDER
 
         #region ALARM SYSTEM
+        // ************************
+        // IDEAS
+        //
+        // ------------------------
+
         static void DisplayAlarmSystem(Finch finchRobot)
         {
             string alarmType;
@@ -652,6 +679,7 @@ namespace Project_FinchControl
                     DisplayContinuePrompt("exit to main menu");
                     break;
                 default:
+                    // todo delete when can
                     throw new FormatException("DIDNT WORK");
                     break;
             }
@@ -876,6 +904,11 @@ namespace Project_FinchControl
         #endregion // ALARM SYSTEM
 
         #region USER PROGRAMMING
+        // ************************
+        // IDEAS
+        // * Have it so user picks duration, rbg, speed etc
+        // ------------------------
+
         static void DisplayUserProgramming(Finch finchRobot)
         {
             // normal
@@ -893,9 +926,7 @@ namespace Project_FinchControl
 
             do
             {
-                // todo add clear all commands
                 // todo use tuples to make language better, durations of commands
-                // todo add cool commands 
                 DisplayScreenHeader("Main Menu");
 
                 Console.WriteLine("\n1. Set command parameters" +
@@ -903,32 +934,43 @@ namespace Project_FinchControl
                                   "\n3. View Commands" +
                                   "\n4. Execute Command" +
                                   "\n5. Clear commands" +
-                                  "\n6. Exit");
+                                  "\n6. Save Data" +
+                                  "\n7. Load Data" +
+                                  "\n8. Exit");
                 menuChoice = Console.ReadLine().Trim();
 
                 switch (menuChoice)
                 {
-                    case "1":
+                    case "1": //
                         commandParameters =  DisplayGetCommandParameters();
                         break;
 
-                    case "2":
+                    case "2": //
                         DisplayGetFinchCommands(finchRobot, commands);
                         break;
 
-                    case "3":
+                    case "3": //
                         DisplayFinchCommands(commands);
                         break;
 
-                    case "4":
+                    case "4": //
                         DisplayExecuteFinchCommands(finchRobot, commands, commandParameters);
                         break;
 
-                    case "5":
+                    case "5": //
                         commands.Clear();
                         break;
 
-                    case "6":
+                    // TODO fix because it doesn't work
+                    case "6": // Save Data
+                        DisplayWriteUserProgramData(commands);
+                        break;
+
+                    case "7": // Load Data
+                        DisplayReadUserProgram();
+                        break;
+                        
+                    case "8":
                         quitApplication = true;
                         break;
 
@@ -1022,24 +1064,33 @@ namespace Project_FinchControl
                 userCommand = Console.ReadLine().ToUpper().Trim();
                 Enum.TryParse(userCommand, out command);
 
-                switch (command)
-                {
-                    case Command.NORMALCOMMANDS:
-                        DisplayPossibleNormalCommands();
-                        break;
-                    case Command.SPECIALCOMMANDS:
-                        DisplayPossibleSpecialCommands();
-                        break;
-                    case Command.DONE:
-                        break;
-                    default:
-                        Console.WriteLine("** Invalid command **");
-                        break;
-                }
+                // TODO FIX ASAP
+                //switch (command)
+                //{
+                //    case !Command.NONE:
+                //    case != Command.SPECIALCOMMANDS:
+                //    case != Command.NORMALCOMMANDS:
+                //        break;
+                //    case Command.NORMALCOMMANDS:
+                //        DisplayPossibleNormalCommands();
+                //        break;
+                //    case Command.SPECIALCOMMANDS:
+                //        DisplayPossibleSpecialCommands();
+                //        break;
+                //    case Command.DONE:
+                //        break;
+                //    default:
+                //        Console.WriteLine("** Invalid command **");
+                //        break;
+                //}
 
                 if (command != Command.NONE && command != Command.SPECIALCOMMANDS && command != Command.NORMALCOMMANDS)
                 {
                     commands.Add(command);
+                }
+                else
+                {
+                    Console.WriteLine("no");
                 }
             }
 
@@ -1054,8 +1105,6 @@ namespace Project_FinchControl
             int motorSpeed = commandParameters.motorSpeed;
             int ledBrightness = commandParameters.ledBrightness ;
             int waitMilliSeconds = commandParameters.waitSeconds * 1000;
-
-            // todo display finch command as it is doing it
 
             DisplayScreenHeader("Executing Finch Commands");
 
@@ -1130,9 +1179,64 @@ namespace Project_FinchControl
             DisplayContinuePrompt("exit");
         }
 
+        static void DisplayWriteUserProgramData(List<Command> commands)
+        {
+            string dataPath = @"Data\Data.txt";
+            List<string> commandsToString = new List<string>();
+
+            DisplayScreenHeader("Save commands to a file");
+
+            Console.WriteLine("Ready to save the commands to the Data file");
+            DisplayContinuePrompt("save");
+
+            // CREATE list of command strings
+            foreach (Command command in commands)
+            {
+                commandsToString.Add(command.ToString());
+            }
+
+            File.WriteAllLines(dataPath, commandsToString.ToArray());
+            
+            DisplayContinuePrompt("Continue");
+        }
+
+        static List<Command> DisplayReadUserProgram()
+        {
+            string dataPath = @"Data\Data.txt";
+            List<Command> commands = new List<Command>();
+            string[] commandsAsStrings;
+
+            DisplayScreenHeader("Load commands from file");
+
+            Console.WriteLine("Ready to load the commands from the file");
+            DisplayContinuePrompt("continue");
+
+            commandsAsStrings = File.ReadAllLines(dataPath);
+
+            // put array into Command list
+            Command command;
+            foreach (string stringCommand in commandsAsStrings)
+            {
+                Enum.TryParse(stringCommand, out command);
+
+                commands.Add(command);
+            }
+
+            Console.WriteLine("\nCommands loaded successfully");
+
+            DisplayContinuePrompt("exit");
+
+            return commands;
+        }
+
         #endregion // USER PROGRAMMING
 
         #region CONNECT/DISCONNECT
+        // ************************
+        // IDEAS
+        //
+        // ------------------------
+
         static bool DisplayDisconnectFinchRobot(Finch finchRobot)
         {
             bool finchRobotConnected;
@@ -1193,6 +1297,185 @@ namespace Project_FinchControl
         }
 
         #endregion // CONNECT/DISCONNECT
+
+        #region LOGIN/REGISTRATION
+
+        // ************************
+        // IDEAS
+        //
+        // ------------------------
+
+        static void DisplayLoginRegisterOption()
+        {
+            string userResponse;
+            bool keepLooping = true;
+            string userDatabase = @"Data\Users.txt";
+
+            while (keepLooping)
+            {
+                DisplayScreenHeader("Login or Register");
+
+                Console.WriteLine(
+                    "1. Login" +
+                    "\n2. Register" +
+                    "\n3. Quit");
+
+                userResponse = Console.ReadLine();
+
+                switch (userResponse)
+                {
+                    case "1":
+                        DisplayLogin(userDatabase);
+                        keepLooping = false;
+                        break;
+                    case "2":
+                        DisplayRegister(userDatabase);
+                        keepLooping = false;
+                        break;
+                    case "3":
+                        keepLooping = false;
+                        break;
+                    default:
+                        DisplayErrorMessage("Please enter a menu choice (1-3)");
+                        keepLooping = true;
+                        break;
+                }
+            }
+
+            DisplayContinuePrompt("continue");
+        }
+
+        static void DisplayLogin(string userDatabase)
+        {
+
+        }
+
+        static void DisplayRegister(string userDatabase)
+        {
+            string existingUsers = File.ReadAllText(userDatabase);
+            (string userName, string password) userLogin;
+            userLogin.userName = "";
+            userLogin.password = "";
+
+            Console.Write("Username: ");
+            userLogin.userName = Console.ReadLine().Trim();   
+        }
+
+        #endregion
+
+        #region THEME 
+        static void SetTheme()
+        {
+            string dataPath = @"Data\Theme.txt";
+
+            string foregroundColorString;
+            ConsoleColor foregroundColor;
+
+            foregroundColorString = File.ReadAllText(dataPath);
+
+            Enum.TryParse(foregroundColorString, out foregroundColor);
+
+            Console.ForegroundColor = foregroundColor;
+        }
+
+        static void DisplayChooseTheme()
+        {
+            DisplayScreenHeader("Choose Theme");
+
+            Console.WriteLine("\n1. Cycle through existing themes " +
+                              "\n2. Add a theme");
+            switch (Console.ReadLine())
+            {
+                case "1":
+                    DisplayChooseThemeCycle();
+                    break;
+
+                case "2":
+                    DisplayAddTheme();
+                    break;
+
+                default:
+                    DisplayErrorMessage("Please enter a valid menu choice");
+                    break;
+            }
+        }
+
+        static void DisplayAddTheme()
+        {
+            string backgroundColor;
+            string foregroundColor;
+
+                Console.WriteLine("Background Color: ");
+                backgroundColor = Console.ReadLine().Trim();
+
+                Console.WriteLine("Text Color: ");
+                foregroundColor = Console.ReadLine().Trim();
+
+                File.AppendAllText("Data\\Theme.txt", $"{backgroundColor}|{foregroundColor}");
+                Console.WriteLine("Theme Successfully Added");
+        }
+
+        static void DisplayChooseThemeCycle()
+        {
+            ConsoleColor background;
+            ConsoleColor foreground;
+
+            string[] themes = File.ReadAllLines("Data\\Theme.txt");
+
+            bool keepLooping = true;
+
+                foreach (string theme in themes)
+                {
+                    string[] themeArray = theme.Split('|');
+
+                    string backgroundString = themeArray[0];
+                    string foregroundString = themeArray[1];
+
+                    Enum.TryParse(backgroundString, out background);
+                    Enum.TryParse(foregroundString, out foreground);
+
+                    Console.WriteLine("changing theme");
+                    Console.ReadKey();
+
+                    Console.Clear();
+
+                    Console.BackgroundColor = background;
+                    Console.ForegroundColor = foreground;
+
+                    DisplayScreenHeader("Theme Preview");
+
+                    Console.WriteLine("Do you like this theme? ");
+                    Console.WriteLine("\n1. Yes" +
+                                      "\n2. No");
+
+                bool validResponse = false;
+                while (!validResponse)
+                {
+                    switch (Console.ReadLine())
+                    {
+                        case "1":
+                            validResponse = true;
+                            keepLooping = false;
+                            break;
+                        case "2":
+                            validResponse = true;
+                            break;
+                        default:
+                            DisplayErrorMessage("Please enter a valid choice");
+                            break;
+                    }
+                    Console.Clear();
+                }
+
+                if (keepLooping == false)
+                {
+                    break;
+                }
+                    
+                }
+        }
+
+        #endregion
 
         #region SCREENS
         /// <summary>
