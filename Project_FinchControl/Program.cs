@@ -15,7 +15,7 @@ namespace Project_FinchControl
     //
     // Author:           Carma Aten
     // Dated Created:    10/1/2019
-    // Last Modified:    10/29/2019
+    // Last Modified:    11/4/2019
     //
     // **************************************************
 
@@ -43,8 +43,8 @@ namespace Project_FinchControl
 
             SPECIALCOMMANDS, // ---------
             SWIM,
-            GETCURRENTTEMP, 
-            GETCURRENTLIGHTLEVEL, 
+            GETCURRENTTEMP,
+            GETCURRENTLIGHTLEVEL,
             PLAYSONG
         }
 
@@ -147,7 +147,7 @@ namespace Project_FinchControl
                     case "7":
                         DisplayChooseTheme();
                         break;
-                         
+
                     case "8":
                         if (finchRobotConnected == false)
                         {
@@ -185,7 +185,7 @@ namespace Project_FinchControl
 
             Console.WriteLine("The Finch robot is ready to show you what it\'s got.");
             Console.WriteLine("Would you rather: " +
-                "\n1. Choose what Ray does " + 
+                "\n1. Choose what Ray does " +
                 "\n2. Watch everything ");
             menuChoice = Console.ReadLine().Trim();
             switch (menuChoice)
@@ -204,7 +204,7 @@ namespace Project_FinchControl
                     DisplayErrorMessage("Didn\'t recognize choice");
                     DisplayContinuePrompt("retry");
                     break;
-            }            
+            }
         }
 
         static void DisplayChooseTalentMenu(Finch finchRobot)
@@ -440,7 +440,7 @@ namespace Project_FinchControl
             PauseFinch(finchRobot, pauseLength);
             MorseDot(finchRobot, lightLengthDot, 255, 0, 0);
 
-            PauseFinch(finchRobot ,pauseLengthBetweenLetters);
+            PauseFinch(finchRobot, pauseLengthBetweenLetters);
 
             // a .-
             MorseDot(finchRobot, lightLengthDot, 0, 255, 0);
@@ -522,7 +522,7 @@ namespace Project_FinchControl
         {
             Console.Clear();
             DisplayScreenHeader("Data Recorder Instructions");
-            Console.WriteLine("\n1. Enter how often (in seconds) you would like the Finch to record a data point" 
+            Console.WriteLine("\n1. Enter how often (in seconds) you would like the Finch to record a data point"
                 + "\n2. Enter how many data points you would like recorded"
                 + "\n3. Wait for results!"
                 + "\n\tTemperature data will be displayed in fahrenheit\n");
@@ -679,8 +679,6 @@ namespace Project_FinchControl
                     DisplayContinuePrompt("exit to main menu");
                     break;
                 default:
-                    // todo delete when can
-                    throw new FormatException("DIDNT WORK");
                     break;
             }
         }
@@ -797,7 +795,7 @@ namespace Project_FinchControl
             int maxSeconds = 0;
             bool keepLooping = true;
             bool didParse = false;
-      
+
             while (keepLooping)
             {
                 Console.WriteLine("max seconds: ");
@@ -811,7 +809,7 @@ namespace Project_FinchControl
                     DisplayErrorMessage("Please enter an integer (3, 10)");
                 }
             }
-            
+
             return maxSeconds;
         }
 
@@ -851,7 +849,7 @@ namespace Project_FinchControl
                 }
             }
 
-            
+
 
             DisplayContinuePrompt("continue");
 
@@ -942,7 +940,7 @@ namespace Project_FinchControl
                 switch (menuChoice)
                 {
                     case "1": //
-                        commandParameters =  DisplayGetCommandParameters();
+                        commandParameters = DisplayGetCommandParameters();
                         break;
 
                     case "2": //
@@ -969,7 +967,7 @@ namespace Project_FinchControl
                     case "7": // Load Data
                         DisplayReadUserProgram();
                         break;
-                        
+
                     case "8":
                         quitApplication = true;
                         break;
@@ -1098,12 +1096,12 @@ namespace Project_FinchControl
         }
 
         static void DisplayExecuteFinchCommands(
-            Finch finchRobot, 
+            Finch finchRobot,
             List<Command> commands,
             (int motorSpeed, int ledBrightness, int waitSeconds) commandParameters)
         {
             int motorSpeed = commandParameters.motorSpeed;
-            int ledBrightness = commandParameters.ledBrightness ;
+            int ledBrightness = commandParameters.ledBrightness;
             int waitMilliSeconds = commandParameters.waitSeconds * 1000;
 
             DisplayScreenHeader("Executing Finch Commands");
@@ -1111,7 +1109,7 @@ namespace Project_FinchControl
             // todo add info about method
             DisplayContinuePrompt("start executing commands");
 
-            foreach  (Command command in commands)
+            foreach (Command command in commands)
             {
                 switch (command)
                 {
@@ -1196,7 +1194,7 @@ namespace Project_FinchControl
             }
 
             File.WriteAllLines(dataPath, commandsToString.ToArray());
-            
+
             DisplayContinuePrompt("Continue");
         }
 
@@ -1291,7 +1289,7 @@ namespace Project_FinchControl
                     break;
             }
 
-            
+
 
             return finchRobotConnected;
         }
@@ -1358,7 +1356,7 @@ namespace Project_FinchControl
             userLogin.password = "";
 
             Console.Write("Username: ");
-            userLogin.userName = Console.ReadLine().Trim();   
+            userLogin.userName = Console.ReadLine().Trim();
         }
 
         #endregion
@@ -1405,14 +1403,14 @@ namespace Project_FinchControl
             string backgroundColor;
             string foregroundColor;
 
-                Console.WriteLine("Background Color: ");
-                backgroundColor = Console.ReadLine().Trim();
+            Console.WriteLine("Background Color: ");
+            backgroundColor = Console.ReadLine().Trim();
 
-                Console.WriteLine("Text Color: ");
-                foregroundColor = Console.ReadLine().Trim();
+            Console.WriteLine("Text Color: ");
+            foregroundColor = Console.ReadLine().Trim();
 
-                File.AppendAllText("Data\\Theme.txt", $"{backgroundColor}|{foregroundColor}");
-                Console.WriteLine("Theme Successfully Added");
+            File.AppendAllText("Data\\Theme.txt", $"{backgroundColor}|{foregroundColor}");
+            Console.WriteLine("Theme Successfully Added");
         }
 
         static void DisplayChooseThemeCycle()
@@ -1423,7 +1421,11 @@ namespace Project_FinchControl
             string[] themes = File.ReadAllLines("Data\\Theme.txt");
 
             bool keepLooping = true;
+            bool validResponse;
+            string userResponse;
 
+            while (keepLooping)
+            {
                 foreach (string theme in themes)
                 {
                     string[] themeArray = theme.Split('|');
@@ -1448,31 +1450,23 @@ namespace Project_FinchControl
                     Console.WriteLine("\n1. Yes" +
                                       "\n2. No");
 
-                bool validResponse = false;
-                while (!validResponse)
-                {
-                    switch (Console.ReadLine())
-                    {
-                        case "1":
-                            validResponse = true;
-                            keepLooping = false;
-                            break;
-                        case "2":
-                            validResponse = true;
-                            break;
-                        default:
-                            DisplayErrorMessage("Please enter a valid choice");
-                            break;
-                    }
-                    Console.Clear();
-                }
+                    userResponse = Console.ReadLine();
 
-                if (keepLooping == false)
-                {
-                    break;
+                    if (userResponse == "1")
+                    {
+                        keepLooping = false;
+                        break;
+                    }
+                    else if (userResponse == "2")
+                    {
+                        keepLooping = true;
+                    }
+                    else
+                    {
+                        DisplayErrorMessage("Please enter the number next to your choice (1, 2)");
+                    }
                 }
-                    
-                }
+            }
         }
 
         #endregion
@@ -1495,11 +1489,11 @@ namespace Project_FinchControl
         /// display closing screen
         /// </summary>
         static void DisplayClosingScreen()
-                {
-                    Console.Clear();
-                    Console.WriteLine();
-                    Console.WriteLine("\t\tThank you for using Finch Control!");
-                    Console.WriteLine();
+        {
+            Console.Clear();
+            Console.WriteLine();
+            Console.WriteLine("\t\tThank you for using Finch Control!");
+            Console.WriteLine();
 
             DisplayContinuePrompt("exit");
         }
@@ -1587,22 +1581,22 @@ namespace Project_FinchControl
         /// display continue prompt
         /// </summary>
         static void DisplayContinuePrompt(string action)
-                {
-                    Console.WriteLine();
-                    Console.WriteLine($"Press any key to {action}.");
-                    Console.ReadKey();
-                }
+        {
+            Console.WriteLine();
+            Console.WriteLine($"Press any key to {action}.");
+            Console.ReadKey();
+        }
 
         /// <summary>
         /// display screen header
         /// </summary>
         static void DisplayScreenHeader(string headerText)
-                {
-                    Console.Clear();
-                    Console.WriteLine();
-                    Console.WriteLine("\t\t" + headerText);
-                    Console.WriteLine();
-                }
+        {
+            Console.Clear();
+            Console.WriteLine();
+            Console.WriteLine("\t\t" + headerText);
+            Console.WriteLine();
+        }
 
         #endregion // HELPER METHODS
     }
