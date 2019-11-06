@@ -1,5 +1,5 @@
 ﻿Cyan|Black
 Red|Black
-Blue|White
+Blue|Black
 White|Black
 Black|White

@@ -16,7 +16,7 @@ namespace Project_FinchControl
     //
     // Author:           Carma Aten
     // Dated Created:    10/1/2019
-    // Last Modified:    11/4/2019
+    // Last Modified:    11/6/2019
     //
     // **************************************************
 
@@ -906,6 +906,7 @@ namespace Project_FinchControl
         // ************************
         // IDEAS
         // * Have it so user picks duration, rbg, speed etc
+        // * use tuples to make language better, durations of commands
         // ------------------------
 
         static void DisplayUserProgramming(Finch finchRobot)
@@ -920,22 +921,21 @@ namespace Project_FinchControl
             commandParameters.ledBrightness = 0;
             commandParameters.waitSeconds = 0;
 
-            // 
             List<Command> commands = new List<Command>();
 
             do
             {
-                // todo use tuples to make language better, durations of commands
                 DisplayScreenHeader("Main Menu");
 
                 Console.WriteLine("\n1. Set command parameters" +
-                                  "\n2. Add commands" +
-                                  "\n3. View Commands" +
-                                  "\n4. Execute Command" +
-                                  "\n5. Clear commands" +
-                                  "\n6. Save Data" +
-                                  "\n7. Load Data" +
-                                  "\n8. Exit");
+                                  "\n2. View possible commands" +
+                                  "\n3. Add commands" +
+                                  "\n4. View Commands" +
+                                  "\n5. Execute Command" +
+                                  "\n6. Clear commands" +
+                                  //"\n7. Save Data" +
+                                  //"\n8. Load Data" +
+                                  "\n7. Exit");
                 menuChoice = Console.ReadLine().Trim();
 
                 switch (menuChoice)
@@ -944,32 +944,35 @@ namespace Project_FinchControl
                         commandParameters = DisplayGetCommandParameters();
                         break;
 
-                    case "2": //
-                        DisplayGetFinchCommands(finchRobot, commands);
+                    case "2":
+                        DisplayPossibleFinchCommands();
                         break;
 
                     case "3": //
-                        DisplayFinchCommands(commands);
+                        DisplayGetFinchCommands(finchRobot, commands);
                         break;
 
                     case "4": //
-                        DisplayExecuteFinchCommands(finchRobot, commands, commandParameters);
+                        DisplayFinchCommands(commands);
                         break;
 
                     case "5": //
+                        DisplayExecuteFinchCommands(finchRobot, commands, commandParameters);
+                        break;
+
+                    case "6": //
                         commands.Clear();
                         break;
 
-                    // TODO fix because it doesn't work
-                    case "6": // Save Data
-                        DisplayWriteUserProgramData(commands);
-                        break;
+                    //case "7": // Save Data
+                    //    DisplayWriteUserProgramData(commands);
+                    //    break;
 
-                    case "7": // Load Data
-                        DisplayReadUserProgram();
-                        break;
+                    //case "8": // Load Data
+                    //    DisplayReadUserProgram();
+                    //    break;
 
-                    case "8":
+                    case "7":
                         quitApplication = true;
                         break;
 
@@ -980,6 +983,34 @@ namespace Project_FinchControl
             } while (!quitApplication);
         }
 
+        static void DisplayPossibleFinchCommands()
+        {
+            bool keepLooping = true;
+
+            DisplayScreenHeader("Possible Commands");
+            Console.WriteLine("1. Normal Commands" +
+                              "\n2. Special Commands");
+
+            do
+            {
+                switch (Console.ReadLine())
+                {
+                    case "1":
+                        DisplayPossibleNormalCommands();
+                        keepLooping = false;
+                        break;
+                    case "2":
+                        DisplayPossibleSpecialCommands();
+                        keepLooping = false;
+                        break;
+                    default:
+                        DisplayErrorMessage("Please enter the number next to your choice (1,2)");
+                        break;
+                }
+
+            } while (keepLooping);    
+        }
+
         static (int motorSpeed, int ledBrightness, int waitSeconds) DisplayGetCommandParameters()
         {
             (int motorSpeed, int ledBrightness, int waitSeconds) commandParameters;
@@ -987,22 +1018,50 @@ namespace Project_FinchControl
             commandParameters.ledBrightness = 0;
             commandParameters.waitSeconds = 0;
 
-            Console.Write("Enter motor speed (1-255): ");
-            // todo parse for number
-            // todo check if between 0 and 255 -- if above knock down to 255
-            int.TryParse(Console.ReadLine(), out commandParameters.motorSpeed);
+            bool couldParse = false;
 
-            Console.Write("Enter LED brightness (1-255): ");
-            // todo parse for number
-            // todo check if between 0 and 255 -- if above knock down to 255
-            int.TryParse(Console.ReadLine(), out commandParameters.ledBrightness);
+            do
+            {
+                Console.Write("Enter motor speed (1-255): ");
+                couldParse = int.TryParse(Console.ReadLine(), out commandParameters.motorSpeed);
 
-            Console.Write("Enter wait in seconds: ");
-            // todo parse for number
-            int.TryParse(Console.ReadLine(), out commandParameters.waitSeconds);
+                if (!couldParse)
+                {
+                    DisplayErrorMessage("Please input a value between 0 and 255");
+                }
 
-            // todo validate user input
-            // todo echo back to user
+            } while (!couldParse);
+
+            do
+            {
+                Console.Write("Enter LED brightness (1-255): ");
+                couldParse = int.TryParse(Console.ReadLine(), out commandParameters.ledBrightness);
+
+                if (!couldParse)
+                {
+                    DisplayErrorMessage("Please input a value between 0 and 255");
+                }
+
+            } while (!couldParse);
+
+            do
+            {
+                Console.Write("Enter wait in seconds: ");
+                couldParse = int.TryParse(Console.ReadLine(), out commandParameters.waitSeconds);
+
+                if (!couldParse)
+                {
+                    DisplayErrorMessage("Please input a value between 0 and 255");
+                }
+
+            } while (!couldParse);
+
+            Console.WriteLine($"\tYour Parameters: " +
+                $"\nMotor Speed: {commandParameters.motorSpeed}" +
+                $"\nLED Brightness: {commandParameters.ledBrightness}" +
+                $"\nWait Time: {commandParameters.waitSeconds} seconds");
+
+            DisplayContinuePrompt("continue");
 
             return commandParameters;
         }
@@ -1020,8 +1079,8 @@ namespace Project_FinchControl
 
         static void DisplayPossibleNormalCommands()
         {
-            Console.Clear();
-            Console.WriteLine("Normal Commands");
+            DisplayScreenHeader("Normal Commands");
+
             Console.WriteLine(
                 "MOVEFORWARD, moves the finch forward\n" +
                 "MOVEBACKWARD, moves the finchbackward\n" +
@@ -1031,20 +1090,23 @@ namespace Project_FinchControl
                 "TURNLEFT, finch turns in place to the left\n" +
                 "LEDON, turns the finch LED on\n" +
                 "LEDOFF, turns finch LED off\n" +
-                "DONE, indicates that you are done entering commands \n" +
-                "SPECIALCOMMANDS, displays the commands that do more than one thing");
+                "DONE, indicates that you are done entering commands \n");
+
+            DisplayContinuePrompt("exit");
         }
 
         static void DisplayPossibleSpecialCommands()
         {
-            Console.Clear();
-            Console.WriteLine("Special Commands");
+            DisplayScreenHeader("Special Commands");
+            
             Console.WriteLine(
                 "SWIM, the finch moves so that it looks like it's swimming, does this for the wait period set \n" +
                 "GETCURRENTTEMP, gets the current temperature \n" +
                 "GETCURRENTLIGHTLEVEL, gets the current light levels \n" +
                 "PLAYSONG, plays the song from the talent show portion \n" +
                 " ");
+
+            DisplayContinuePrompt("exit");
         }
 
         static void DisplayGetFinchCommands(Finch finchRobot, List<Command> commands)
@@ -1058,38 +1120,25 @@ namespace Project_FinchControl
 
             while (command != Command.DONE)
             {
-                // todo make nicer
-                Console.Write("Enter Command: ");
+                Console.Write("Command: ");
                 userCommand = Console.ReadLine().ToUpper().Trim();
                 Enum.TryParse(userCommand, out command);
 
-                // TODO FIX ASAP
-                //switch (command)
-                //{
-                //    case !Command.NONE:
-                //    case != Command.SPECIALCOMMANDS:
-                //    case != Command.NORMALCOMMANDS:
-                //        break;
-                //    case Command.NORMALCOMMANDS:
-                //        DisplayPossibleNormalCommands();
-                //        break;
-                //    case Command.SPECIALCOMMANDS:
-                //        DisplayPossibleSpecialCommands();
-                //        break;
-                //    case Command.DONE:
-                //        break;
-                //    default:
-                //        Console.WriteLine("** Invalid command **");
-                //        break;
-                //}
-
-                if (command != Command.NONE && command != Command.SPECIALCOMMANDS && command != Command.NORMALCOMMANDS)
+                if (command != Command.NONE)
                 {
                     commands.Add(command);
                 }
+                else if (command == Command.SPECIALCOMMANDS)
+                {
+                    DisplayPossibleSpecialCommands();
+                }
+                else if (command == Command.NORMALCOMMANDS)
+                {
+                    DisplayPossibleNormalCommands();
+                }
                 else
                 {
-                    Console.WriteLine("no");
+                    Console.WriteLine("WARNING: Invalid command, command not added");
                 }
             }
 
@@ -1107,7 +1156,6 @@ namespace Project_FinchControl
 
             DisplayScreenHeader("Executing Finch Commands");
 
-            // todo add info about method
             DisplayContinuePrompt("start executing commands");
 
             foreach (Command command in commands)
@@ -1346,37 +1394,88 @@ namespace Project_FinchControl
 
         static void DisplayLogin(string userDatabase)
         {
+            string path = @"Data\Users.txt";
+            string response;
 
+            string[] allUsers = File.ReadAllLines(path);
+
+            string userName;
+            string password;
+
+            DisplayScreenHeader("Log In");
+
+            Console.Write("Username: ");
+            userName = Console.ReadLine().Trim();
+
+            foreach (string user in allUsers)
+            {
+                string[] userInfo = user.Split('|');
+                string existingUser = userInfo[0];
+                string userPassword = userInfo[1];
+
+                int attempts = 0;
+
+                if (existingUser == userName)
+                {
+                    for (int attempt = 0; attempt < 3; attempt++)
+                    {
+                        Console.Write("Password: ");
+                        password = Console.ReadLine().Trim();
+
+                        if (userPassword == password)
+                        {
+                            Console.WriteLine("Login successful");
+                            break;
+                        }
+                        else
+                        {
+                            Console.WriteLine("Invalid password");
+                            attempts++;
+                        }
+                    }
+
+                    if (attempts == 3)
+                    {
+                        Console.WriteLine("You have reached the maximum number of attempts you are allowed, maybe you forgot you password, or entered the wrong username");
+                        DisplayContinuePrompt("continue");
+                        DisplayLoginRegisterOption();
+                    }
+
+                }
+                else if (existingUser != userName)
+                {
+                    Console.WriteLine("That username does not exist");
+                    Console.Write("Would you like to register? (y/n): ");
+                    response = Console.ReadLine();
+                    if (response == "y")
+                    {
+                        DisplayRegister(userDatabase);
+                    }
+                    else
+                    {
+                        DisplayLoginRegisterOption();
+                    }
+                    
+                }
+            }
         }
 
         static void DisplayRegister(string userDatabase)
         {
             string existingUsers = File.ReadAllText(userDatabase);
             (string userName, string password) userLogin;
-            userLogin.userName = "";
-            userLogin.password = "";
 
             Console.Write("Username: ");
             userLogin.userName = Console.ReadLine().Trim();
+            Console.Write("Password: ");
+            userLogin.password = Console.ReadLine().Trim();
+
+            File.AppendAllText(userDatabase, $"\n{userLogin.userName}|{userLogin.password}");
         }
 
         #endregion
 
         #region THEME 
-        static void SetTheme()
-        {
-            string dataPath = @"Data\Theme.txt";
-
-            string foregroundColorString;
-            ConsoleColor foregroundColor;
-
-            foregroundColorString = File.ReadAllText(dataPath);
-
-            Enum.TryParse(foregroundColorString, out foregroundColor);
-
-            Console.ForegroundColor = foregroundColor;
-        }
-
         static void DisplayChooseTheme()
         {
             DisplayScreenHeader("Choose Theme");
@@ -1404,21 +1503,55 @@ namespace Project_FinchControl
             string path = @"Data\Theme.txt";
             string backgroundColor;
             string foregroundColor;
-
-            DisplayScreenHeader("Add a Theme");
-
-            Console.WriteLine("Background Color: ");
-            backgroundColor = Console.ReadLine().Trim();
-
-            Console.WriteLine("Text Color: ");
-            foregroundColor = Console.ReadLine().Trim();
+            bool couldParse;
+            bool keepLooping = true;
+            ConsoleColor temp;
 
             // **************************************
             // Taken from c# microsoft documentation
             // Creates a TextInfo based on the "en-US" culture.
             TextInfo myTI = new CultureInfo("en-US", false).TextInfo;
 
-            string themeText = $"\n{myTI.ToTitleCase(backgroundColor)}|{myTI.ToTitleCase(foregroundColor)}";
+            DisplayScreenHeader("Add a Theme");
+
+            do
+            {
+                Console.Write("Background Color: ");
+                backgroundColor = myTI.ToTitleCase(Console.ReadLine().Trim());
+                couldParse = Enum.TryParse(backgroundColor, out temp);
+                if (couldParse == false)
+                {
+                    DisplayErrorMessage("could not understand");
+                }
+                else
+                {
+                    keepLooping = false;
+                }
+
+            } while (keepLooping);
+
+            // resetting keepLooping
+            keepLooping = true;
+
+            do
+            {
+                Console.Write("Text Color: ");
+                foregroundColor = myTI.ToTitleCase(Console.ReadLine().Trim());
+                couldParse = Enum.TryParse(foregroundColor, out temp);
+                if (couldParse == false)
+                {
+                    DisplayErrorMessage("could not understand");
+                }
+                else
+                {
+                    keepLooping = false;
+                }
+
+            } while (keepLooping);
+
+
+
+            string themeText = $"\n{backgroundColor}|{foregroundColor}";
             File.AppendAllText(path, themeText);
             Console.WriteLine("Theme Successfully Added");
 
@@ -1448,9 +1581,6 @@ namespace Project_FinchControl
                     Enum.TryParse(backgroundString, out background);
                     Enum.TryParse(foregroundString, out foreground);
 
-                    Console.WriteLine("changing theme");
-                    Console.ReadKey();
-
                     Console.Clear();
 
                     Console.BackgroundColor = background;
@@ -1464,7 +1594,8 @@ namespace Project_FinchControl
 
                     do
                     {
-                        Console.Write("?: ");
+                        validResponse = false;
+
                         userResponse = Console.ReadLine();
 
                         if (userResponse == "1")
@@ -1485,8 +1616,10 @@ namespace Project_FinchControl
                         }
                     } while (!validResponse && keepLooping);
 
-
-
+                    if (keepLooping == false)
+                    {
+                        break;
+                    }
                 }
             }
         }
